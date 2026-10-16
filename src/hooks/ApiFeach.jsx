@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchDataFromApi } from "../utils/api";
 
 const ApiFeach = (url) => {
-  const [loading, setLoading] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -15,6 +15,7 @@ const ApiFeach = (url) => {
         setData(res);
       })
       .catch((error) => {
+        setLoading(false);
         setData(false);
         setError(error);
       });

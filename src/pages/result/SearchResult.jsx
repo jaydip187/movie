@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import "./style.scss";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { fetchDataFromApi } from "../../utils/api";
 import ContentWrapper from "../../components/contentWrapper/ContentWrapper";
 import Loader from "../../components/Loader/Loader";
 import Card from "../../components/Card/Card";
-import LazyImg from "../../components/lazyLoadImage/LazyImg";
-import resultNotFound from "../../assets/no-results.png";
+import CardSkeleton from "../../components/Card/CardSkeleton";
+
 const SearchResult = () => {
   const [data, setData] = useState(null);
   const [pagenum, setPageNum] = useState(1);
@@ -16,75 +16,86 @@ const SearchResult = () => {
 
   const feachDataIntial = () => {
     setLoading(true);
-    fetchDataFromApi(`/search/multi?query=${query}&page=${pagenum}`).then(
+    fetchDataFromApi(`/search/multi?query=${encodeURIComponent(query)}&page=1`).then(
       (res) => {
         setData(res);
-        setPageNum((num) => num + 1);
+        setPageNum(2);
         setLoading(false);
       }
     );
   };
 
   const feachNextPageData = () => {
-    fetchDataFromApi(`/search/multi?query=${query}&page=${pagenum}`).then(
-      (res) => {
-        if (data?.results) {
-          setData({
-            ...data?.results,
-            results: [...data.results, ...res.results],
-          });
-        } else {
-          setData(res);
-        }
-
-        setPageNum((num) => num + 1);
+    fetchDataFromApi(
+      `/search/multi?query=${encodeURIComponent(query)}&page=${pagenum}`
+    ).then((res) => {
+      if (data?.results) {
+        setData({
+          ...data,
+          results: [...data.results, ...(res?.results || [])],
+        });
+      } else {
+        setData(res);
       }
-    );
+
+      setPageNum((num) => num + 1);
+    });
   };
 
   useEffect(() => {
     feachDataIntial();
   }, [query]);
 
-  return (
-    <div className="searchResultsPage">
-      {loading && <Loader />}
-      {!loading && (
-        <ContentWrapper>
-          {data?.results.length > 0 ? (
-            <>
-              <div className="pageTitle">{`Search ${
-                data?.total_results > 1 ? "results" : "result"
-              } of '${query}'`}</div>
+  const results = data?.results?.filter((item) => item.media_type !== "person");
 
-              <InfiniteScroll
-                className="content"
-                dataLength={data?.results?.length}
-                next={feachNextPageData}
-                key={new Date().getTime()}
-                hasMore={pagenum <= data.total_pages}
-                loader={<Loader />}
-              >
-                {data?.results.map((item) => {
-                  return (
-                    <>
-                      {/* {console.log(new Date().getTime())} */}
-                      <Card data={item} key={item.id} fromSearch={true} />;
-                    </>
-                  );
-                })}
-              </InfiniteScroll>
-            </>
-          ) : (
-            <>
-              <span className="resultNotFound">Sorry , Result Not Found </span>
-              <div className="xyz">
-                <LazyImg className="img" src={resultNotFound} />
-              </div>
-            </>
-          )}
-        </ContentWrapper>
-      )}
+  return (
+    <div className="searchResultsPage pageShell">
+      <ContentWrapper>
+        <div className="pageHeading">
+          <div>
+            <span className="eyebrow">Search</span>
+            <h1 className="pageTitle">&ldquo;{query}&rdquo;</h1>
+            {!loading && data?.total_results > 0 && (
+              <p className="meta">
+                {`${data.total_results.toLocaleString()} ${
+                  data.total_results > 1 ? "results" : "result"
+                }`}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="content">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        ) : results?.length > 0 ? (
+          <InfiniteScroll
+            className="content"
+            dataLength={data?.results?.length || 0}
+            next={feachNextPageData}
+            hasMore={pagenum <= data.total_pages}
+            loader={<Loader />}
+          >
+            {results.map((item) => (
+              <Card data={item} key={`${item.media_type}-${item.id}`} fromSearch={true} />
+            ))}
+          </InfiniteScroll>
+        ) : (
+          <div className="emptyState resultNotFound">
+            <h2>No results found</h2>
+            <p>
+              Check the spelling or try a shorter title. You can also browse
+              everything by genre.
+            </p>
+            <Link to="/explore/movie" className="btn secondary">
+              Explore movies
+            </Link>
+          </div>
+        )}
+      </ContentWrapper>
     </div>
   );
 };

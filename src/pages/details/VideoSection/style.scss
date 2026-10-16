@@ -1,123 +1,112 @@
 @import "../../../mixin.scss";
+
 .videosSection {
-  position: relative;
-  margin-bottom: 50px;
-  .sectionHeading {
-    font-size: 24px;
-    color: white;
-    margin-bottom: 25px;
-  }
+  margin-bottom: var(--section-gap);
   .videos {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    margin-right: -20px;
-    margin-left: -20px;
-    padding: 0 20px;
-    @include md {
-      gap: 20px;
-      margin: 0;
-      padding: 0;
-    }
-    .videoItem {
-      width: 150px;
-      flex-shrink: 0;
-      @include md {
-        width: 25%;
+    @include rail;
+  }
+  .videoItem {
+    @include rail-item(1.4, 2.6, 3.3, 4);
+    text-align: left;
+    .videoThumbnail {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      margin-bottom: 10px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface-2);
+      .lazyImg,
+      img {
+        display: block !important;
+        width: 100%;
+        height: 100%;
       }
-      cursor: pointer;
+      img {
+        object-fit: cover;
+        transition: transform var(--dur-slow) var(--ease-out),
+          opacity var(--dur) ease;
+      }
+      .playBadge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(11, 11, 13, 0.7);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: background-color var(--dur) ease,
+          transform var(--dur) var(--ease-out);
+        .playIcon {
+          width: 16px;
+          height: 16px;
+          margin-left: 2px;
+          fill: var(--text);
+          transition: fill var(--dur) ease;
+        }
+      }
+      .videoType {
+        position: absolute;
+        left: 8px;
+        bottom: 8px;
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        background: rgba(11, 11, 13, 0.75);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+    }
+    .videoTitle {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.4;
+      @include ellipsis(2);
+      transition: color var(--dur-fast) ease;
+    }
+    @include hover {
       .videoThumbnail {
-        margin-bottom: 15px;
-        position: relative;
         img {
-          width: 100%;
-          display: block;
-          border-radius: 12px;
-          transition: all 0.7s ease-in-out;
+          transform: scale(1.04);
+          opacity: 0.8;
         }
-        svg {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 50px;
-          height: 50px;
-        }
-        .triangle {
-          stroke-dasharray: 240;
-          stroke-dashoffset: 480;
-          stroke: white;
-          transform: translateY(0);
-          transition: all 0.7s ease-in-out;
-        }
-        .circle {
-          stroke: white;
-          stroke-dasharray: 650;
-          stroke-dashoffset: 1300;
-          transition: all 0.5s ease-in-out;
-        }
-        &:hover {
-          img {
-            opacity: 0.5;
-          }
-          .triangle {
-            stroke-dashoffset: 0;
-            opacity: 1;
-            stroke: var(--pink);
-            animation: trailorPlay 0.7s ease-in-out;
-          }
-          .circle {
-            stroke-dashoffset: 0;
-            stroke: var(--pink);
+        .playBadge {
+          background: var(--accent);
+          transform: translate(-50%, -50%) scale(1.08);
+          .playIcon {
+            fill: var(--accent-ink);
           }
         }
       }
       .videoTitle {
-        color: white;
-        font-size: 14px;
-        line-height: 20px;
-        @include md {
-          font-size: 16px;
-          line-height: 24px;
-        }
+        color: var(--accent);
       }
     }
-  }
+    &:focus-visible {
+      outline-offset: 4px;
+    }
 
-  .videoSkeleton {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    margin-right: -20px;
-    margin-left: -20px;
-    padding: 0 20px;
-    @include md {
-      gap: 20px;
-      margin: 0;
-      padding: 0;
-    }
-    .skItem {
-      width: 150px;
-      flex-shrink: 0;
-      @include md {
-        width: 25%;
-      }
+    &.skItem {
       .thumb {
-        width: 100%;
         aspect-ratio: 16 / 9;
-        border-radius: 12px;
-        margin-bottom: 10px;
+        border-radius: var(--radius);
+        margin-bottom: 12px;
       }
       .row {
-        height: 20px;
-        width: 100%;
-        border-radius: 10px;
-        margin-bottom: 10px;
+        height: 12px;
+        width: 90%;
+        border-radius: var(--radius-sm);
+        margin-bottom: 8px;
       }
       .row2 {
-        height: 20px;
-        width: 75%;
-        border-radius: 10px;
+        height: 12px;
+        width: 55%;
+        border-radius: var(--radius-sm);
       }
     }
   }

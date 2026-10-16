@@ -1,19 +1,19 @@
 import { useSelector } from "react-redux";
 import "./style.scss";
 
-const Genres = ({ data }) => {
+const Genres = ({ data, className = "" }) => {
   const { genres } = useSelector((state) => state.home);
 
   return (
-    <div className="genres">
-      {data?.map((item) => {
-        return (
-          <div key={item} className="genre">
-            {genres[item]?.name}
-          </div>
-        );
-      })}
-    </div>
+    <ul className={`genres ${className}`}>
+      {data?.map((item) =>
+        genres[item]?.name ? (
+          <li key={item} className="genre">
+            {genres[item].name}
+          </li>
+        ) : null
+      )}
+    </ul>
   );
 };
 

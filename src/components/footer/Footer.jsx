@@ -4,42 +4,85 @@ import {
   FaTwitter,
   FaLinkedin,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 import ContentWrapper from "../contentWrapper/ContentWrapper";
+import logo from "../../assets/logo.png";
 import "./Footer.scss";
+
+const browseLinks = [
+  { to: "/explore/movie", label: "Movies" },
+  { to: "/explore/tv", label: "TV Shows" },
+];
+
+const infoLinks = ["Terms Of Use", "Privacy Policy", "About", "Blog", "FAQ"];
+
+const socials = [
+  { label: "Facebook", icon: <FaFacebookF /> },
+  { label: "Instagram", icon: <FaInstagram /> },
+  { label: "Twitter", icon: <FaTwitter /> },
+  { label: "LinkedIn", icon: <FaLinkedin /> },
+];
 
 const Footer = () => {
   return (
     <footer className="footer">
       <ContentWrapper>
-        <ul className="menuItems">
-          <li className="menuItem">Terms Of Use</li>
-          <li className="menuItem">Privacy-Policy</li>
-          <li className="menuItem">About</li>
-          <li className="menuItem">Blog</li>
-          <li className="menuItem">FAQ</li>
-        </ul>
-        <div className="infoText">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur.
+        <div className="footerTop">
+          <div className="brand">
+            <Link to="/" aria-label="Home">
+              <img src={logo} alt="It's Jaydip" />
+            </Link>
+            <p className="infoText">
+              Browse what&apos;s trending, find something new to watch, and
+              dig into the cast, crew and trailers behind every title.
+            </p>
+          </div>
+
+          <nav className="linkGroup" aria-label="Browse">
+            <span className="eyebrow">Browse</span>
+            <ul>
+              {browseLinks.map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to} className="menuItem">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav className="linkGroup" aria-label="Information">
+            <span className="eyebrow">Information</span>
+            <ul className="menuItems">
+              {infoLinks.map((label) => (
+                <li key={label}>
+                  <a href="#" className="menuItem">
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
-        <div className="socialIcons">
-          <span className="icon">
-            <FaFacebookF />
-          </span>
-          <span className="icon">
-            <FaInstagram />
-          </span>
-          <span className="icon">
-            <FaTwitter />
-          </span>
-          <span className="icon">
-            <FaLinkedin />
-          </span>
+
+        <div className="footerBottom">
+          <p className="attribution">
+            Data and images provided by TMDB. This product uses the TMDB API
+            but is not endorsed or certified by TMDB.
+          </p>
+          <div className="socialIcons">
+            {socials.map((social) => (
+              <a
+                key={social.label}
+                href="#"
+                className="icon"
+                aria-label={social.label}
+              >
+                {social.icon}
+              </a>
+            ))}
+          </div>
         </div>
       </ContentWrapper>
     </footer>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Select from "react-select";
@@ -10,6 +10,7 @@ import { fetchDataFromApi } from "../../utils/api";
 import ContentWrapper from "../../components/contentWrapper/ContentWrapper";
 import Card from "../../components/Card/Card";
 import Loader from "../../components/Loader/Loader";
+import CardSkeleton from "../../components/Card/CardSkeleton";
 let filters = {};
 
 const sortbyData = [
@@ -50,7 +51,7 @@ const Explore = () => {
         if (data?.results) {
           setData({
             ...data,
-            results: [...data?.results, ...res.results],
+            results: [...data.results, ...res.results],
           });
         } else {
           setData(res);
@@ -94,12 +95,25 @@ const Explore = () => {
     fetchInitialData();
   };
 
+  const results = data?.results?.filter((item) => item.media_type !== "person");
+  const activeFilters = (genre?.length || 0) + (sortby ? 1 : 0);
+
   return (
-    <div className="explorePage">
+    <div className="explorePage pageShell">
       <ContentWrapper>
-        <div className="pageHeader">
-          <div className="pageTitle">
-            {mediaType === "tv" ? "Explore TV Shows" : "Explore Movies"}
+        <div className="pageHeader pageHeading">
+          <div>
+            <span className="eyebrow">Explore</span>
+            <h1 className="pageTitle">
+              {mediaType === "tv" ? "TV Shows" : "Movies"}
+            </h1>
+            {data?.total_results > 0 && !loading && (
+              <p className="meta">
+                {data.total_results.toLocaleString()} titles
+                {activeFilters > 0 &&
+                  ` · ${activeFilters} filter${activeFilters > 1 ? "s" : ""}`}
+              </p>
+            )}
           </div>
           <div className="filters">
             <Select
@@ -111,7 +125,8 @@ const Explore = () => {
               getOptionLabel={(option) => option.name}
               getOptionValue={(option) => option.id}
               onChange={onChange}
-              placeholder="Select genres"
+              placeholder="All genres"
+              aria-label="Filter by genre"
               className="react-select-container genresDD"
               classNamePrefix="react-select"
             />
@@ -121,30 +136,40 @@ const Explore = () => {
               options={sortbyData}
               onChange={onChange}
               isClearable={true}
+              isSearchable={false}
               placeholder="Sort by"
+              aria-label="Sort results"
               className="react-select-container sortbyDD"
               classNamePrefix="react-select"
             />
           </div>
         </div>
-        {loading && <Loader />}
+        {loading && (
+          <div className="content">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        )}
         {!loading && (
           <>
-            {data?.results?.length > 0 ? (
+            {results?.length > 0 ? (
               <InfiniteScroll
                 className="content"
-                dataLength={data?.results?.length || []}
+                dataLength={data?.results?.length || 0}
                 next={fetchNextPageData}
                 hasMore={pageNum <= data?.total_pages}
                 loader={<Loader />}
               >
-                {data?.results?.map((item, index) => {
-                  if (item.media_type === "person") return;
-                  return <Card key={index} data={item} mediaType={mediaType} />;
-                })}
+                {results.map((item, index) => (
+                  <Card key={index} data={item} mediaType={mediaType} />
+                ))}
               </InfiniteScroll>
             ) : (
-              <span className="resultNotFound">Sorry, Results not found!</span>
+              <div className="emptyState">
+                <h2>No titles match these filters</h2>
+                <p>Try removing a genre or choosing a different sort order.</p>
+              </div>
             )}
           </>
         )}
