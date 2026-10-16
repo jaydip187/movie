@@ -1,13 +1,50 @@
-.circleRating {
-  background-color: var(--black);
-  border-radius: 50%;
-  padding: 2px;
-  .CircularProgressbar-text {
-    font-size: 34px;
-    font-weight: 700;
-    fill: var(--black);
+.scoreBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(11, 11, 13, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-subtle);
   }
-  .CircularProgressbar-trail {
-    stroke: transparent;
+  &.high .dot {
+    background: var(--score-high);
+  }
+  &.mid .dot {
+    background: var(--score-mid);
+  }
+  &.low .dot {
+    background: var(--score-low);
+  }
+}
+
+.circleRating {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface);
+  padding: 4px;
+  .CircularProgressbar-text {
+    font-family: var(--font-sans);
+    font-size: 28px;
+    font-weight: 600;
+    fill: var(--text);
+    dominant-baseline: central;
+  }
+  .CircularProgressbar-path {
+    stroke-linecap: round;
   }
 }

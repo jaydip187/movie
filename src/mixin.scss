@@ -35,3 +35,68 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+@mixin hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+// Horizontal scroll row that bleeds to the viewport edge on small screens.
+@mixin rail {
+  --rail-gap: 12px;
+  display: flex;
+  gap: var(--rail-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  margin-inline: calc(var(--gutter) * -1);
+  padding: 4px var(--gutter) 8px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  @include md {
+    --rail-gap: 20px;
+  }
+  > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+}
+
+// Fixed-width columns for rails: n visible items per row at each breakpoint.
+@mixin rail-item($sm: 2.3, $md: 4.2, $lg: 5, $xl: 6) {
+  width: calc((100% - var(--rail-gap) * #{$sm - 1}) / #{$sm});
+  @include md {
+    width: calc((100% - var(--rail-gap) * #{$md - 1}) / #{$md});
+  }
+  @include lg {
+    width: calc((100% - var(--rail-gap) * #{$lg - 1}) / #{$lg});
+  }
+  @include xl {
+    width: calc((100% - var(--rail-gap) * #{$xl - 1}) / #{$xl});
+  }
+}
+
+@mixin poster-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 12px;
+  @include sm {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  @include md {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 32px 20px;
+  }
+  @include lg {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  @include xl {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}

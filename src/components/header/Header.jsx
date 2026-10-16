@@ -1,69 +1,86 @@
-import { useState, useEffect } from "react";
-import { HiOutlineSearch } from "react-icons/hi";
-import { SlMenu } from "react-icons/sl";
-import { VscChromeClose } from "react-icons/vsc";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { FiSearch, FiMenu, FiX } from "react-icons/fi";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import "./Header.scss";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ContentWrapper from "../contentWrapper/ContentWrapper";
 import logo from "../../assets/logo.png";
-import LazyImg from "../lazyLoadImage/LazyImg";
+
+const navItems = [
+  { to: "/explore/movie", label: "Movies" },
+  { to: "/explore/tv", label: "TV Shows" },
+];
 
 const Header = () => {
   const [show, setShow] = useState("top");
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [query, setQuery] = useState("");
-  const [showSearch, setShowSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const lastScrollY = useRef(0);
+  const inputRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handlenav = () => {
-    if (window.scrollY > 200) {
-      if (window.scrollY > lastScrollY && !mobileMenu) {
-        // console.log(window.scrollY);
-        setShow("hide");
-      } else {
-        setShow("show");
-      }
-    } else {
-      setShow("top");
-    }
-
-    setLastScrollY(window.scrollY);
-    // console.log(lastScrollY, "-------------");
-  };
   useEffect(() => {
-    window.addEventListener("scroll", handlenav);
-    return () => {
-      window.removeEventListener("scroll", handlenav);
+    const handlenav = () => {
+      const y = window.scrollY;
+      if (y > 200) {
+        setShow(y > lastScrollY.current && !mobileMenu && !showSearch ? "hide" : "show");
+      } else {
+        setShow(y > 8 ? "show" : "top");
+      }
+      lastScrollY.current = y;
     };
-  }, [handlenav, lastScrollY]);
+    handlenav();
+    window.addEventListener("scroll", handlenav, { passive: true });
+    return () => window.removeEventListener("scroll", handlenav);
+  }, [mobileMenu, showSearch]);
 
-  const opensearch = () => {
-    setShowSearch(true);
+  // Close overlays whenever the route changes.
+  useEffect(() => {
+    setMobileMenu(false);
+    setShowSearch(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (showSearch) inputRef.current?.focus();
+  }, [showSearch]);
+
+  useEffect(() => {
+    const onKey = (event) => {
+      if (event.key === "Escape") {
+        setShowSearch(false);
+        setMobileMenu(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const toggleSearch = () => {
+    setShowSearch((open) => !open);
     setMobileMenu(false);
   };
 
-  const openMobileMenu = () => {
+  const toggleMobileMenu = () => {
     setShowSearch(false);
-    setMobileMenu(true);
+    setMobileMenu((open) => !open);
   };
 
   const QueryHandler = (event) => {
-    if (event.key === "Enter" && query.length > 0) {
+    event.preventDefault();
+    const value = query.trim();
+    if (value.length > 0) {
       setQuery("");
-      navigate(`/search/${query}`);
-      setTimeout(() => {
-        setShowSearch(false);
-      }, 1000);
-    }
-    if (query.length == 0 && event.key === "Enter") {
-      toast.error("Invalid details!", {
+      navigate(`/search/${encodeURIComponent(value)}`);
+      setShowSearch(false);
+    } else {
+      toast.error("Type a title to search for.", {
         position: "top-center",
         autoClose: 2000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: false,
         draggable: true,
@@ -73,76 +90,76 @@ const Header = () => {
     }
   };
 
-  const navhandeler = (type) => {
-    if (type === "movie") {
-      navigate("/explore/movie");
-    } else {
-      navigate("/explore/tv");
-    }
-    setMobileMenu(false);
-  };
+  const solid = show !== "top" || mobileMenu || showSearch;
 
   return (
-    <header className={`header ${mobileMenu ? "mobileView" : ""} ${show}`}>
+    <header
+      className={`header ${show} ${solid ? "solid" : ""} ${
+        mobileMenu ? "mobileView" : ""
+      }`}
+    >
       <ContentWrapper>
-        <div className="logo" onClick={() => navigate("/")}>
-          <LazyImg src={logo} alt="logo" />
-        </div>
-        <div className="menuItems">
-          <li
-            className="menuItem"
-            onClick={() => {
-              navhandeler("movie");
-            }}
-          >
-            Movies
-          </li>
-          <li
-            className="menuItem"
-            onClick={() => {
-              navhandeler("tv");
-            }}
-          >
-            TV Shows
-          </li>
-          <li className="menuItem">
-            <HiOutlineSearch onClick={opensearch} />
-          </li>
-        </div>
+        <NavLink to="/" className="logo" aria-label="Home">
+          <img src={logo} alt="It's Jaydip" />
+        </NavLink>
 
-        <div className="mobileMenuItems">
-          {mobileMenu ? (
-            <VscChromeClose onClick={() => setMobileMenu(false)} />
-          ) : (
-            <>
-              <HiOutlineSearch onClick={opensearch} />
+        <nav className="menuItems" aria-label="Primary">
+          {navItems.map((item) => (
+            <NavLink key={item.to} to={item.to} className="menuItem">
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
 
-              <SlMenu onClick={openMobileMenu} />
-            </>
-          )}
+        <div className="headerActions">
+          <button
+            type="button"
+            className={`iconBtn ${showSearch ? "active" : ""}`}
+            onClick={toggleSearch}
+            aria-label={showSearch ? "Close search" : "Search"}
+            aria-expanded={showSearch}
+          >
+            {showSearch ? <FiX /> : <FiSearch />}
+          </button>
+          <button
+            type="button"
+            className="iconBtn menuToggle"
+            onClick={toggleMobileMenu}
+            aria-label={mobileMenu ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenu}
+          >
+            {mobileMenu ? <FiX /> : <FiMenu />}
+          </button>
         </div>
       </ContentWrapper>
+
+      {mobileMenu && (
+        <nav className="mobileMenu" aria-label="Mobile">
+          <ContentWrapper>
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to} className="mobileMenuItem">
+                {item.label}
+              </NavLink>
+            ))}
+          </ContentWrapper>
+        </nav>
+      )}
 
       {showSearch && (
         <div className="searchBar">
           <ContentWrapper>
-            <div className="searchInput">
+            <form className="searchInput" role="search" onSubmit={QueryHandler}>
+              <FiSearch aria-hidden="true" />
               <input
-                type="text"
-                placeholder="Enter a Movie name"
-                name=""
-                id=""
+                ref={inputRef}
+                type="search"
+                placeholder="Search movies and TV shows"
+                aria-label="Search movies and TV shows"
+                value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                onKeyUp={QueryHandler}
               />
-              {/* <button>Search</button> */}
-              <VscChromeClose
-                onClick={() => {
-                  setShowSearch(false);
-                }}
-              />
-              {/* <LazyImg src={bg} alt="" /> */}
-            </div>
+              <kbd className="hint">Enter</kbd>
+            </form>
           </ContentWrapper>
         </div>
       )}
@@ -150,7 +167,7 @@ const Header = () => {
       <ToastContainer
         position="top-center"
         autoClose={2000}
-        hideProgressBar={false}
+        hideProgressBar
         newestOnTop={false}
         closeOnClick
         rtl={false}

@@ -1,37 +1,43 @@
 .switchingTabs {
-  height: 34px;
-  background-color: white;
-  border-radius: 6px;
-  padding: 2px;
-  .tabItems {
-    display: flex;
-    align-items: center;
-    height: 30px;
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  .tabItem {
     position: relative;
-    .tabItem {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100px;
-      color: var(--black);
-      font-size: 14px;
-      position: relative;
-      z-index: 1;
-      cursor: pointer;
-      transition: color ease 0.3s;
-      &.active {
-        color: white;
-      }
+    z-index: 1;
+    min-width: 84px;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color var(--dur) ease;
+    &:hover {
+      color: var(--text);
     }
-    .movingBg {
-      height: 30px;
-      width: 100px;
-      border-radius: 8px;
-      background-image: var(--gradient);
-      position: absolute;
-      left: 0;
-      transition: left cubic-bezier(0.88, -0.35, 0.565, 1.35) 0.4s;
+    &.active {
+      color: var(--text);
     }
+    &:focus-visible {
+      outline-offset: -2px;
+    }
+  }
+  .movingBg {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc((100% - 6px) / var(--count));
+    border-radius: var(--radius-sm);
+    background: var(--surface-3);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    transform: translateX(calc(var(--index) * 100%));
+    transition: transform var(--dur) var(--ease-out);
   }
 }

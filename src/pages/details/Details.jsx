@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import "./style.scss";
 import ApiFeach from "../../hooks/ApiFeach";
 import DetailsBanner from "./detailsBanner/DetailsBanner";
 import Cast from "../../components/Cast/Cast";
@@ -13,15 +12,14 @@ const Details = () => {
   const { data: credits, loading: creditsLoading } = ApiFeach(
     `/${mediaType}/${id}/credits`
   );
-  // console.log(credits);
-  const a = data?.results.filter(
-    (result) => result.name === "Official Trailer"
-  )[0];
+  const videos = data?.results || [];
+  const trailer =
+    videos.find((result) => result.name === "Official Trailer") ||
+    videos.find((result) => result.type === "Trailer");
 
-  // console.log(a, "wefe");
   return (
-    <div>
-      <DetailsBanner video={a} crew={credits?.crew} />
+    <div className="detailsPage">
+      <DetailsBanner video={trailer} crew={credits?.crew} />
       <Cast data={credits?.cast} loading={creditsLoading} />
       <VideosSection data={data} loading={loading} />
       <Similar mediaType={mediaType} id={id} />

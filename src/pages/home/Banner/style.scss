@@ -1,202 +1,144 @@
 @import "../../../mixin.scss";
 
 .banner {
-  width: 100%;
-  height: 450px;
-  background-color: var(--black);
-  display: flex;
-  align-items: center;
-  // margin-top: 10px;
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  min-height: 560px;
+  height: 82vh;
+  max-height: 820px;
+  margin-bottom: 40px;
+  overflow: hidden;
+  isolation: isolate;
   @include md {
-    height: 700px;
+    min-height: 600px;
+    margin-bottom: var(--section-gap);
   }
 
   .bgclass {
-    // width: 520px;
-
-    width: 100%;
-    height: 100%;
     position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0.5;
-    overflow: hidden;
-
-    .lazy-load-image-background {
+    inset: 0;
+    z-index: -2;
+    background: var(--surface);
+    .lazyImg,
+    .xyz {
+      display: block !important;
       width: 100%;
       height: 100%;
-
-      .xyz {
-        width: 100%;
-        height: 100%;
-        // width: 100px;
-        // background-size: cover;
-        object-fit: cover;
-        object-position: center;
-      }
+    }
+    .xyz {
+      object-fit: cover;
+      object-position: center 25%;
+      animation: heroSettle 1.6s var(--ease-out) both;
     }
   }
 
-  .wrapper {
-    display: flex;
-    // width: 100px;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-    margin: 0 auto;
-    max-width: 800px;
-    color: aliceblue;
-    line-height: 20px;
+  // Two scrims: one for the reading column, one to melt into the page.
+  .opacity-layer {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        0deg,
+        var(--bg) 0%,
+        rgba(11, 11, 13, 0.6) 30%,
+        rgba(11, 11, 13, 0) 60%
+      ),
+      linear-gradient(
+        90deg,
+        rgba(11, 11, 13, 0.85) 0%,
+        rgba(11, 11, 13, 0.4) 45%,
+        rgba(11, 11, 13, 0) 75%
+      );
+  }
 
-    .content {
-      top: 0;
-      .title {
-        // display: none;
-
-        font-size: 50px;
-        font-weight: 700;
-        margin-bottom: 10px;
-
-        @include sm {
-          font-size: 80px;
-        }
-
-        .title-word {
-          animation: color-animation 4s linear infinite;
-        }
-
-        .title-word-1 {
-          --color-1: #df8453;
-          --color-2: #3d8dae;
-          --color-3: #e4a9a8;
-          margin-bottom: 10px;
-        }
-
-        .title-word-2 {
-          --color-1: #dbad4a;
-          --color-2: #accfcb;
-          --color-3: #17494d;
-        }
-
-        .title-word-3 {
-          --color-1: #accfcb;
-          --color-2: #e4a9a8;
-          --color-3: #accfcb;
-        }
-
-        .title-word-4 {
-          --color-1: #3d8dae;
-          --color-2: #df8453;
-          --color-3: #e4a9a8;
-        }
-
-        @keyframes color-animation {
-          0% {
-            color: var(--color-1);
-          }
-          32% {
-            color: var(--color-1);
-          }
-          33% {
-            color: var(--color-2);
-          }
-          65% {
-            color: var(--color-2);
-          }
-          66% {
-            color: var(--color-3);
-          }
-          99% {
-            color: var(--color-3);
-          }
-          100% {
-            color: var(--color-1);
-          }
-        }
-
-        /* Here are just some visual styles. 🖌 */
-
-        .container {
-          display: grid;
-          place-items: center;
-          text-align: center;
-          // height: 100vh;
-        }
-
-        .titlein {
-          font-family: "Montserrat", sans-serif;
-          font-weight: 800;
-          // font-size: 120px;
-          gap: 50px;
-          display: flex;
-          flex-direction: column;
-          text-transform: uppercase;
-
-          @include md {
-            gap: 100px;
-          }
-        }
-
-        @include md {
-          margin-bottom: 0;
-          font-size: 150px;
-          gap: 100px;
-        }
+  .content {
+    max-width: 620px;
+    padding-bottom: 8px;
+    animation: riseIn var(--dur-slow) var(--ease-out) 120ms backwards;
+    .eyebrow {
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 40px;
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      text-wrap: balance;
+      @include md {
+        font-size: 64px;
       }
-      .search {
-        display: flex;
-        align-items: center;
+      @include xl {
+        font-size: 76px;
+      }
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 14px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--text-muted);
+      > span:not(.scoreBadge) + span::before {
+        content: "·";
+        margin-right: 14px;
+        color: var(--text-subtle);
+      }
+    }
+    .overview {
+      color: rgba(241, 239, 233, 0.82);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+      @include ellipsis(3);
+      @include md {
+        font-size: 16px;
+      }
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    &.loading {
+      width: 100%;
+      animation: none;
+      .sk-eyebrow {
+        width: 160px;
+        height: 12px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 18px;
+      }
+      .sk-title {
+        width: 70%;
+        height: 56px;
+        border-radius: var(--radius);
+        margin-bottom: 20px;
+      }
+      .sk-line {
         width: 100%;
-        input {
-          width: calc(100% - 100px);
-          height: 50px;
-          background-color: white;
-          outline: 0;
-          border: 0;
-          border-radius: 30px 0 0 30px;
-          padding: 0 15px;
-          font-size: 14px;
-          @include md {
-            width: calc(100% - 150px);
-            height: 60px;
-            font-size: 20px;
-            padding: 0 30px;
-          }
-        }
-        button {
-          width: 100px;
-          height: 50px;
-          background: var(--gradient);
-          color: white;
-          outline: 0;
-          border: 0;
-          border-radius: 0 30px 30px 0;
-          font-size: 16px;
-          cursor: pointer;
-          @include md {
-            width: 150px;
-            height: 60px;
-            font-size: 18px;
-          }
+        height: 14px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 10px;
+        &.short {
+          width: 60%;
         }
       }
     }
   }
 }
 
-.opacity-layer {
-  width: 100%;
-  height: 250px;
-  background: linear-gradient(180deg, rgba(4, 21, 45, 0) 0%, #04152d 79.17%);
-  position: absolute;
-  // margin-bottom: 10px;
-  left: 0;
-  // top: 0;
-  bottom: 0;
-  @include md {
-    // bottom: 0;
+@keyframes heroSettle {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
   }
 }

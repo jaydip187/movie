@@ -1,15 +1,42 @@
+@import "../../mixin.scss";
+
 .not-found {
-  text-align: center;
-  padding: 150px;
-
-  h1 {
-    font-size: 24px;
-    color: #ff0000;
-    margin-bottom: 10px;
+  max-width: 520px;
+  padding: 48px 0 32px;
+  @include md {
+    padding: 96px 0 64px;
   }
-
+  .code {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 96px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    margin-bottom: 16px;
+    @include md {
+      font-size: 140px;
+    }
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    @include md {
+      font-size: 36px;
+    }
+  }
   p {
     font-size: 16px;
-    color: #666666;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 }

@@ -1,41 +1,12 @@
 @import "../../mixin.scss";
+
 .searchResultsPage {
   min-height: 700px;
-  padding-top: 100px;
-  .resultNotFound {
-    font-size: 24px;
-    color: white;
-  }
-  .xyz {
-    // background-size: cover;
-    height: 500px;
-    margin: auto;
-    display: flex;
-    justify-content: center;
-
-    .img {
-      height: 500px;
-    }
-    // align-items: center;
-  }
   .pageTitle {
-    font-size: 24px;
-    line-height: 34px;
-    color: white;
-    margin-bottom: 25px;
+    @include ellipsis(2);
+    word-break: break-word;
   }
   .content {
-    display: flex;
-    flex-flow: row wrap;
-    gap: 10px;
-    margin-bottom: 50px;
-    @include md {
-      gap: 20px;
-    }
-    .movieCard {
-      .posterBlock {
-        margin-bottom: 20px;
-      }
-    }
+    @include poster-grid;
   }
 }

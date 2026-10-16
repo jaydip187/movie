@@ -1,41 +1,46 @@
-import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import "./style.scss";
-import React from "react";
-import LazyImg from "../lazyLoadImage/LazyImg";
+import LazyImg from "../LazyLoadImage/LazyImg";
 import Rating from "../Rating/Rating";
-import Genres from "../genres/Genres";
+import Genres from "../Genres/Genres";
 import PosterFallback from "../../assets/no-poster.png";
+import { imageUrl } from "../../utils/image";
+import { formatDate, releaseDateOf } from "../../utils/format";
 
 const Card = ({ data, fromSearch, mediaType }) => {
   const { url } = useSelector((state) => state.home);
-  const navigate = useNavigate();
-  const posterUrl = data.poster_path
-    ? url?.images?.base_url + "original" + data.poster_path
-    : PosterFallback;
+  const type = data.media_type || mediaType;
+  const posterUrl = imageUrl(url, data.poster_path, "w500") || PosterFallback;
+  const title = data.title || data.name;
+  const date = formatDate(releaseDateOf(data));
+
   return (
-    <div
-      className="movieCard"
-      onClick={() => navigate(`/${data.media_type || mediaType}/${data.id}`)}
-    >
+    <Link className="movieCard" to={`/${type}/${data.id}`}>
       <div className="posterBlock">
-        <LazyImg className="posterImg" src={posterUrl} />
+        <LazyImg className="posterImg" src={posterUrl} alt="" />
         {!fromSearch && (
-          <React.Fragment>
-            <Rating rating={data.vote_average.toFixed(1)} />
-            <Genres data={data.genre_ids.slice(0, 2)} />
-          </React.Fragment>
+          <>
+            <div className="posterTop">
+              <Rating rating={data.vote_average} />
+            </div>
+            <div className="posterHover" aria-hidden="true">
+              <Genres data={data.genre_ids?.slice(0, 2)} />
+            </div>
+          </>
         )}
       </div>
       <div className="textBlock">
-        <span className="title">{data.title || data.name}</span>
+        <span className="title">{title}</span>
         <span className="date">
-          {dayjs(data.release_date).format("MMM D, YYYY")}
+          {date || "Date TBA"}
+          {fromSearch && type && (
+            <span className="type">{type === "tv" ? "TV" : "Movie"}</span>
+          )}
         </span>
       </div>
-    </div>
+    </Link>
   );
 };
 

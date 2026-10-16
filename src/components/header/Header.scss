@@ -2,150 +2,218 @@
 
 .header {
   position: fixed;
-  transform: translateY(0);
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 60px;
-  z-index: 1;
+  height: var(--header-h);
+  z-index: 20;
   display: flex;
   align-items: center;
-  transition: all ease 0.5s;
-  z-index: 2;
-  &.show {
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(3.5px);
-    -webkit-backdrop-filter: blur(3.5px);
+  transform: translateY(0);
+  transition: transform var(--dur-slow) var(--ease-out),
+    background-color var(--dur) ease, border-color var(--dur) ease;
+  border-bottom: 1px solid transparent;
+  // Soft top scrim keeps the nav legible over bright hero images.
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -24px 0;
+    background: linear-gradient(
+      180deg,
+      rgba(11, 11, 13, 0.7) 0%,
+      rgba(11, 11, 13, 0) 100%
+    );
+    pointer-events: none;
+    transition: opacity var(--dur) ease;
   }
-  &.top {
-    background-color: transparent;
-  }
-  &.hide {
-    transform: translateY(-60px);
-  }
-
-  .contentWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .logo {
-    cursor: pointer;
-    img {
-      height: 50px;
+  &.solid {
+    background: rgba(11, 11, 13, 0.82);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-bottom-color: var(--border);
+    &::before {
+      opacity: 0;
     }
   }
+  &.hide {
+    transform: translateY(-100%);
+  }
+
+  > .contentWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    img {
+      height: 34px;
+      width: auto;
+      @include md {
+        height: 38px;
+      }
+    }
+  }
+
   .menuItems {
-    list-style-type: none;
     display: none;
     align-items: center;
+    gap: 4px;
     @include md {
       display: flex;
     }
     .menuItem {
-      height: 60px;
-      display: flex;
-      align-items: center;
-      margin: 0 15px;
-      color: white;
-      font-weight: 500;
       position: relative;
-      &.searchIcon {
-        margin-right: 0;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color var(--dur-fast) ease;
+      &::after {
+        content: "";
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 2px;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--accent);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform var(--dur) var(--ease-out);
       }
-      svg {
-        font-size: 18px;
-      }
-      cursor: pointer;
       &:hover {
-        color: var(--pink);
+        color: var(--text);
       }
-    }
-  }
-
-  .mobileMenuItems {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    @include md {
-      display: none;
-    }
-    svg {
-      font-size: 18px;
-      color: white;
-    }
-  }
-
-  &.mobileView {
-    background: var(--black3);
-    .menuItems {
-      display: flex;
-      position: absolute;
-      top: 60px;
-      left: 0;
-      background: var(--black3);
-      flex-direction: column;
-      width: 100%;
-      padding: 20px 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      animation: mobileMenu 0.3s ease forwards;
-      .menuItem {
-        font-size: 20px;
-        width: 100%;
-        height: auto;
-        padding: 15px 20px;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        &:last-child {
-          display: none;
+      &.active {
+        color: var(--text);
+        &::after {
+          transform: scaleX(1);
         }
       }
     }
   }
 
-  .searchBar {
-    width: 100%;
-    height: 60px;
-    background-color: white;
+  .headerActions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    .iconBtn.active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+  .menuToggle {
+    @include md {
+      display: none;
+    }
+  }
+
+  .mobileMenu {
     position: absolute;
-    top: 60px;
-    animation: mobileMenu 0.3s ease forwards;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0 16px;
+    animation: dropIn var(--dur) var(--ease-out);
+    @include md {
+      display: none;
+    }
+    .mobileMenuItem {
+      display: block;
+      padding: 14px 0;
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      &:last-child {
+        border-bottom: 0;
+      }
+      &.active {
+        color: var(--text);
+      }
+    }
+  }
+
+  .searchBar {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    animation: dropIn var(--dur) var(--ease-out);
     .searchInput {
       display: flex;
       align-items: center;
-      height: 40px;
-      margin-top: 10px;
-      width: 100%;
+      gap: 12px;
+      height: 48px;
+      padding: 0 14px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      transition: border-color var(--dur-fast) ease;
+      &:focus-within {
+        border-color: var(--accent);
+      }
+      @include md {
+        height: 56px;
+        padding: 0 18px;
+      }
       svg {
-        font-size: 20px;
+        font-size: 18px;
+        color: var(--text-muted);
         flex-shrink: 0;
-        margin-left: 10px;
-        cursor: pointer;
       }
       input {
-        width: 100%;
-        height: 50px;
-        background-color: white;
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        background: transparent;
         outline: 0;
         border: 0;
-        border-radius: 30px 0 0 30px;
-        padding: 0 15px;
-        font-size: 14px;
+        font-size: 16px;
+        &::placeholder {
+          color: var(--text-subtle);
+        }
+        &::-webkit-search-cancel-button {
+          display: none;
+        }
         @include md {
-          height: 60px;
-          font-size: 20px;
-          padding: 0 30px;
+          font-size: 18px;
+        }
+      }
+      .hint {
+        display: none;
+        padding: 2px 6px;
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-sm);
+        font-family: var(--font-sans);
+        font-size: 11px;
+        color: var(--text-subtle);
+        @include md {
+          display: inline-block;
         }
       }
     }
   }
 }
 
-@keyframes mobileMenu {
-  0% {
-    transform: translateY(-130%);
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
-  100% {
-    transform: translateY(0);
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

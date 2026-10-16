@@ -1,102 +1,100 @@
-// import "./style.scss ";
 import "./style.scss";
-import { useRef } from "react";
-import {
-  BsFillArrowLeftCircleFill,
-  BsFillArrowRightCircleFill,
-} from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import dayjs from "dayjs";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import ContentWrapper from "../contentWrapper/ContentWrapper";
-import LazyImg from "../lazyLoadImage/LazyImg";
-import PosterFallback from "../../assets/no-poster.png";
-import Rating from "../Rating/Rating";
-import Genres from "../Genres/Genres";
+import SectionHeader from "../SectionHeader/SectionHeader";
+import Card from "../Card/Card";
+import CardSkeleton from "../Card/CardSkeleton";
 
-const Carousel = ({ data, loading, endpoint, title }) => {
+const Carousel = ({ data, loading, endpoint, title, children }) => {
   const carouselRef = useRef(null);
-  const { url } = useSelector((state) => state.home);
-  // console.log(url);
-  const navigate = useNavigate();
+  const [edges, setEdges] = useState({ start: true, end: false });
 
-  const Loadimg = () => {
-    return (
-      <div className="skeletonItem">
-        <div className="posterBlock skeleton">
-          <div className="textBlock">
-            <div className="title skeleton"></div>
-            <div className="date skeleton"></div>
-          </div>
-        </div>
-      </div>
-    );
+  const updateEdges = useCallback(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    setEdges({
+      start: el.scrollLeft <= 4,
+      end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4,
+    });
+  }, []);
+
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (el) el.scrollLeft = 0;
+    updateEdges();
+    window.addEventListener("resize", updateEdges);
+    return () => window.removeEventListener("resize", updateEdges);
+  }, [data, loading, updateEdges]);
+
+  const navigation = (dir) => {
+    const el = carouselRef.current;
+    const amount = el.clientWidth * 0.85;
+    el.scrollBy({
+      left: dir === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
   };
 
-  const handelnavigate = (type, id) => {
-    // navigate(`/${item.media_type}/${item.id}`)
-    type ? navigate(`/${type}/${id}`) : navigate(`/${endpoint}/${id}`);
-
-    window.scrollTo(0, 0);
-  };
-
-  //   (url.images.base_url, "44444444444");
+  const hasItems = data?.length > 0;
 
   return (
-    <div className="carousel">
+    <section className="carousel">
       <ContentWrapper>
-        {title && <div className="carouselTitle">{title}</div>}
+        {(title || children) && (
+          <SectionHeader title={title}>
+            {children}
+            <div className="carouselNav">
+              <button
+                type="button"
+                className="arrow"
+                aria-label="Scroll left"
+                disabled={loading || edges.start}
+                onClick={() => navigation("left")}
+              >
+                <FiChevronLeft />
+              </button>
+              <button
+                type="button"
+                className="arrow"
+                aria-label="Scroll right"
+                disabled={loading || !hasItems || edges.end}
+                onClick={() => navigation("right")}
+              >
+                <FiChevronRight />
+              </button>
+            </div>
+          </SectionHeader>
+        )}
 
-        {!loading ? (
+        {loading ? (
           <div className="carouselItems">
-            {data?.length > 1 ? (
-              ""
-            ) : (
-              <div>
-                <span style={{ color: "white", fontWeight: "bold" }}>
-                  Data Not Found
-                </span>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div className="carouselItem" key={i}>
+                <CardSkeleton />
               </div>
-            )}
-
-            {data?.map((item) => {
-              const imgUrl = item.poster_path
-                ? url?.images?.base_url + "original" + item.poster_path
-                : PosterFallback;
-
-              return (
-                <div
-                  key={item.id}
-                  className="carouselItem"
-                  onClick={() => handelnavigate(item.media_type, item.id)}
-                >
-                  <div className="posterBlock">
-                    <LazyImg src={imgUrl} />
-                    <Rating rating={item.vote_average.toFixed(1)} />
-                    <Genres data={item.genre_ids.slice(0, 2)} />
-                  </div>
-                  <div className="textBlock">
-                    <span className="title">{item.title || item.name}</span>
-                    <span className="date">
-                      {dayjs(item.release_date).format("MMM D ,YYYY")}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+            ))}
+          </div>
+        ) : hasItems ? (
+          <div
+            className={`carouselItems ${edges.start ? "" : "fadeStart"} ${
+              edges.end ? "" : "fadeEnd"
+            }`}
+            ref={carouselRef}
+            onScroll={updateEdges}
+          >
+            {data.map((item) => (
+              <div className="carouselItem" key={item.id}>
+                <Card data={item} mediaType={endpoint} />
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="loadingSkeleton">
-            {Loadimg()}
-            {Loadimg()}
-            {Loadimg()}
-            {Loadimg()}
-            {Loadimg()}
-          </div>
+          <p className="emptyState compact">Nothing to show here yet.</p>
         )}
       </ContentWrapper>
-    </div>
+    </section>
   );
 };
 

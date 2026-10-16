@@ -1,18 +1,16 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/opacity.css";
 
 // eslint-disable-next-line react/prop-types
-const LazyImg = ({ src, className }) => {
-  // console.log(src);
+const LazyImg = ({ src, className, alt = "" }) => {
   return (
-    <div>
-      <LazyLoadImage
-        className={className || ""}
-        alt=""
-        effect="opacity"
-        src={src}
-      />
-      ;
-    </div>
+    <LazyLoadImage
+      className={className || ""}
+      alt={alt}
+      effect="opacity"
+      src={src}
+      wrapperClassName="lazyImg"
+    />
   );
 };
 

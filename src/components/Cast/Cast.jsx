@@ -1,60 +1,51 @@
-import React from "react";
 import { useSelector } from "react-redux";
 
 import "./style.scss";
 import ContentWrapper from "../contentWrapper/ContentWrapper";
-// import LazyImg from "../lazyLoadImage/LazyImg";
-import LazyImg from "../lazyLoadImage/LazyImg";
+import SectionHeader from "../SectionHeader/SectionHeader";
+import LazyImg from "../LazyLoadImage/LazyImg";
 import avatar from "../../assets/avatar.png";
+import { imageUrl } from "../../utils/image";
 
 const Cast = ({ data, loading }) => {
   const { url } = useSelector((state) => state.home);
 
-  const skeleton = () => {
+  const skeleton = (key) => {
     return (
-      <div className="skItem">
-        <div className="circle skeleton"></div>
+      <div className="listItem skItem" key={key} aria-hidden="true">
+        <div className="profileImg skeleton"></div>
         <div className="row skeleton"></div>
         <div className="row2 skeleton"></div>
       </div>
     );
   };
+
+  if (!loading && !data?.length) return null;
+
   return (
-    <div className="castSection">
+    <section className="castSection">
       <ContentWrapper>
-        <div className="sectionHeading">Top Cast</div>
-        {!loading ? (
-          <div className="listItems">
-            {data?.map((index) => {
-              const ImgUrl = index.profile_path
-                ? url?.images?.base_url + "original" + index.profile_path
-                : avatar;
+        <SectionHeader title="Top Cast" />
+        <ul className="listItems">
+          {loading
+            ? Array.from({ length: 7 }).map((_, i) => skeleton(i))
+            : data.map((person) => {
+                const ImgUrl =
+                  imageUrl(url, person.profile_path, "w185") || avatar;
 
-              return (
-                <div className="listItem" key={index.id}>
-                  <div className="profileImg">
-                    <LazyImg src={ImgUrl} />
-                  </div>
-
-                  <div className="name">{index.name}</div>
-
-                  <div className="character">{index.character}</div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="castSkeleton">
-            {skeleton()}
-            {skeleton()}
-            {skeleton()}
-            {skeleton()}
-            {skeleton()}
-            {skeleton()}
-          </div>
-        )}
+                return (
+                  <li className="listItem" key={person.credit_id || person.id}>
+                    <div className="profileImg">
+                      <LazyImg src={ImgUrl} alt={person.name} />
+                    </div>
+                    <div className="name">{person.name}</div>
+                    <div className="character">{person.character}</div>
+                  </li>
+                );
+              })}
+        </ul>
       </ContentWrapper>
-    </div>
+    </section>
   );
 };
 
